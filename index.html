@@ -18,7 +18,6 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', 'YOUR_PIXEL_ID_HERE');
 fbq('track', 'PageView');
-fbq('track', 'Lead');
 </script>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID_HERE&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel Code -->
@@ -101,9 +100,36 @@ fbq('track', 'Lead');
     letter-spacing: -0.2px;
     font-weight: 500;
   }
+  .kakao-btn {
+    display: none;
+    margin-top: 28px;
+    background: #FEE500;
+    color: #3C1E1E;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: -0.3px;
+    transition: transform 0.15s ease;
+  }
+  .kakao-btn:active {
+    transform: scale(0.97);
+  }
+  .kakao-btn.show {
+    display: block;
+    animation: fadeUp 0.4s ease forwards;
+  }
   @keyframes scaleIn {
     0% { opacity: 0; transform: scale(0.96); }
     100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
 </style>
 </head>
@@ -131,6 +157,7 @@ fbq('track', 'Lead');
     <div class="bar-fill" id="bar"></div>
   </div>
   <p class="cta">입장 후 지원하시는 기업명을<br>카톡으로 말씀해주세요.</p>
+  <button class="kakao-btn" id="kakaoBtn" onclick="goKakao()">카카오톡 열기</button>
 </div>
 
 <script>
@@ -140,7 +167,9 @@ fbq('track', 'Lead');
   var bar = document.getElementById('bar');
   var ppl = document.getElementById('ppl');
   var cnt = document.getElementById('cnt');
+  var kakaoBtn = document.getElementById('kakaoBtn');
 
+  // --- 프로그레스바 ---
   var barTarget = 0;
   var barCurrent = 0;
   var barRAF = null;
@@ -164,6 +193,7 @@ fbq('track', 'Lead');
     barRAF = requestAnimationFrame(smoothBar);
   }
 
+  // --- 숫자 플래시 ---
   function flashChange(el, newText) {
     el.style.background = '#22C55E';
     el.style.color = '#FFFFFF';
@@ -181,53 +211,83 @@ fbq('track', 'Lead');
     flashChange(cnt, '279명');
   }, 1000);
 
+  // --- 프로그레스 단계 ---
   setTimeout(function() { setBarTarget(20); }, 300);
   setTimeout(function() { setBarTarget(45); }, 800);
   setTimeout(function() { setBarTarget(70); }, 1300);
   setTimeout(function() { setBarTarget(90); }, 1800);
 
-  var loaded = { pixel: false, page: false };
+  // --- 픽셀 확실히 전송 후 리다이렉트 ---
+  var pixelSent = false;
+  var pageDone = false;
+
+  function sendPixelLead() {
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'Lead');
+      // sendBeacon 폴백: 픽셀 이미지 요청이 날아갈 시간 확보
+      pixelSent = true;
+    } else {
+      pixelSent = true; // 픽셀 로드 실패해도 진행
+    }
+    tryRedirect();
+  }
 
   window.addEventListener('load', function() {
-    loaded.page = true;
-    tryRedirect();
+    pageDone = true;
+    // 픽셀 로드 대기 후 Lead 이벤트 발송
+    var checkPixel = setInterval(function() {
+      if (typeof fbq !== 'undefined' && fbq.loaded) {
+        clearInterval(checkPixel);
+        sendPixelLead();
+      }
+    }, 100);
+    // 2초 안에 픽셀 안 잡히면 강제 진행
+    setTimeout(function() {
+      clearInterval(checkPixel);
+      if (!pixelSent) sendPixelLead();
+    }, 2000);
   });
 
-  var pixelCheck = setInterval(function() {
-    if (typeof fbq !== 'undefined' && fbq.loaded) {
-      loaded.pixel = true;
-      clearInterval(pixelCheck);
-      tryRedirect();
-    }
-  }, 100);
-
-  setTimeout(function() {
-    if (!loaded.pixel) {
-      loaded.pixel = true;
-      clearInterval(pixelCheck);
-      tryRedirect();
-    }
-  }, 2000);
-
+  // --- 리다이렉트 (replace로 히스토리 안 남김) ---
   var redirected = false;
+
+  function goKakao() {
+    window.location.replace(KAKAO_URL);
+  }
+
   function tryRedirect() {
-    if (!loaded.page || !loaded.pixel || redirected) return;
+    if (!pageDone || !pixelSent || redirected) return;
     redirected = true;
     var elapsed = Date.now() - pageStart;
     var remaining = Math.max(0, MIN_DISPLAY - elapsed);
+
     setTimeout(function() {
       setBarTarget(100);
+
+      // 픽셀 전송 여유 시간 200ms 확보 후 리다이렉트
       setTimeout(function() {
-        window.location.href = KAKAO_URL;
+        // 자동 리다이렉트 시도 (replace로 뒤로가기 문제 해결)
+        window.location.replace(KAKAO_URL);
+
+        // 1.5초 후에도 페이지에 남아있으면 = 자동 리다이렉트 실패
+        // 버튼을 보여줌
+        setTimeout(function() {
+          kakaoBtn.classList.add('show');
+        }, 1500);
       }, 500);
     }, remaining);
   }
 
+  // --- 최종 안전장치 ---
   setTimeout(function() {
     if (!redirected) {
       redirected = true;
+      if (typeof fbq !== 'undefined') fbq('track', 'Lead');
       bar.style.width = '100%';
-      window.location.href = KAKAO_URL;
+      window.location.replace(KAKAO_URL);
+      setTimeout(function() {
+        kakaoBtn.classList.add('show');
+      }, 1500);
     }
   }, 5000);
 </script>
