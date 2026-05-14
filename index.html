@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>고초형 카카오톡 상담</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 
 <!-- Meta Pixel Code -->
 <script>
@@ -25,7 +26,7 @@ fbq('track', 'Lead');
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
     background: #F5F5F5;
     display: flex;
     align-items: center;
@@ -36,70 +37,72 @@ fbq('track', 'Lead');
   }
   .card {
     background: #FFFFFF;
-    border-radius: 16px;
-    border: 1px solid rgba(0,0,0,0.06);
-    padding: 48px 28px 36px;
+    border-radius: 24px;
+    padding: 48px 24px 40px;
     text-align: center;
     max-width: 340px;
     width: calc(100% - 40px);
     opacity: 0;
-    transform: scale(0.92);
+    transform: scale(0.96);
     animation: scaleIn 0.5s ease forwards;
   }
-  .kakao-logo { margin-bottom: 24px; }
+  .logo { margin-bottom: 28px; }
   .title {
-    font-size: 17px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
+    color: #191F28;
     line-height: 1.55;
-    color: #1A1A1A;
-    margin-bottom: 8px;
+    margin-bottom: 32px;
+    letter-spacing: -0.4px;
   }
-  .sub {
+  .stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+  .stat-box {
+    flex: 1;
+    background: #F2F4F6;
+    border-radius: 16px;
+    padding: 18px 12px;
+  }
+  .stat-label {
     font-size: 13px;
-    color: #888;
-    margin-bottom: 28px;
+    color: #8B95A1;
+    margin-bottom: 8px;
+    font-weight: 500;
   }
-  .sub .num {
-    font-weight: 600;
-    color: #16A34A;
+  .stat-num {
+    font-size: 32px;
+    font-weight: 700;
+    color: #3182F6;
     display: inline-block;
-    padding: 1px 6px;
-    border-radius: 4px;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-  .meta {
-    font-size: 12px;
-    color: #AAA;
-    margin-bottom: 16px;
-  }
-  .meta .num {
-    font-weight: 600;
-    color: #16A34A;
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 4px;
+    padding: 2px 8px;
+    border-radius: 6px;
     transition: background 0.3s ease, color 0.3s ease;
   }
   .bar-track {
-    background: #E8E8E8;
+    background: #F2F4F6;
     border-radius: 100px;
-    height: 4px;
+    height: 6px;
     overflow: hidden;
-    margin-bottom: 28px;
+    margin-bottom: 36px;
   }
   .bar-fill {
-    background: #2563EB;
+    background: #3182F6;
     height: 100%;
     width: 0%;
     border-radius: 100px;
   }
   .cta {
-    font-size: 14px;
-    color: #1A1A1A;
-    line-height: 1.65;
+    font-size: 15px;
+    color: #4E5968;
+    line-height: 1.7;
+    letter-spacing: -0.2px;
+    font-weight: 500;
   }
   @keyframes scaleIn {
-    0% { opacity: 0; transform: scale(0.92); }
+    0% { opacity: 0; transform: scale(0.96); }
     100% { opacity: 1; transform: scale(1); }
   }
 </style>
@@ -107,15 +110,23 @@ fbq('track', 'Lead');
 <body>
 
 <div class="card">
-  <div class="kakao-logo">
-    <svg width="48" height="48" viewBox="0 0 48 48">
-      <rect width="48" height="48" rx="12" fill="#FEE500"/>
-      <path d="M24 13c-7.18 0-13 4.47-13 10 0 3.57 2.38 6.71 5.95 8.48l-1.52 5.55c-.13.46.4.84.8.57l6.6-4.34c.38.03.77.05 1.17.05 7.18 0 13-4.47 13-10s-5.82-10-13-10z" fill="#3C1E1E"/>
+  <div class="logo">
+    <svg width="56" height="56" viewBox="0 0 56 56">
+      <rect width="56" height="56" rx="18" fill="#FEE500"/>
+      <path d="M28 15c-8.37 0-15.17 5.21-15.17 11.67 0 4.16 2.78 7.82 6.94 9.89l-1.77 6.47c-.15.54.47.98.93.67l7.7-5.07c.45.04.9.06 1.37.06 8.37 0 15.17-5.21 15.17-11.67S36.37 15 28 15z" fill="#3C1E1E"/>
     </svg>
   </div>
-  <p class="title">고초형 공식 카카오톡 채널로<br>이동중입니다.</p>
-  <p class="sub">현재 <span class="num" id="ppl">7명</span>의 상담이 진행중입니다.</p>
-  <p class="meta">최근 한달 내 문의 <span class="num" id="cnt">278건</span></p>
+  <p class="title">고초형 카카오톡 채널로<br>이동중입니다.</p>
+  <div class="stats">
+    <div class="stat-box">
+      <p class="stat-label">실시간 상담중</p>
+      <p class="stat-num" id="ppl">7명</p>
+    </div>
+    <div class="stat-box">
+      <p class="stat-label">최근 한달 문의</p>
+      <p class="stat-num" id="cnt">278명</p>
+    </div>
+  </div>
   <div class="bar-track">
     <div class="bar-fill" id="bar"></div>
   </div>
@@ -124,13 +135,12 @@ fbq('track', 'Lead');
 
 <script>
   var KAKAO_URL = 'https://open.kakao.com/me/gocho3';
-  var MIN_DISPLAY = 2000; // 최소 2초 표시
+  var MIN_DISPLAY = 2000;
   var pageStart = Date.now();
   var bar = document.getElementById('bar');
   var ppl = document.getElementById('ppl');
   var cnt = document.getElementById('cnt');
 
-  // 프로그레스바: 부드럽게 연속 진행
   var barTarget = 0;
   var barCurrent = 0;
   var barRAF = null;
@@ -154,32 +164,28 @@ fbq('track', 'Lead');
     barRAF = requestAnimationFrame(smoothBar);
   }
 
-  // 색상 플래시 숫자 변경
   function flashChange(el, newText) {
-    el.style.background = '#16A34A';
+    el.style.background = '#22C55E';
     el.style.color = '#FFFFFF';
     setTimeout(function() {
       el.textContent = newText;
       setTimeout(function() {
         el.style.background = 'transparent';
-        el.style.color = '#16A34A';
+        el.style.color = '#3182F6';
       }, 400);
     }, 300);
   }
 
-  // 1초 후 숫자 플래시
   setTimeout(function() {
     flashChange(ppl, '8명');
-    flashChange(cnt, '279건');
+    flashChange(cnt, '279명');
   }, 1000);
 
-  // 프로그레스: 2초에 걸쳐 부드럽게
   setTimeout(function() { setBarTarget(20); }, 300);
   setTimeout(function() { setBarTarget(45); }, 800);
   setTimeout(function() { setBarTarget(70); }, 1300);
   setTimeout(function() { setBarTarget(90); }, 1800);
 
-  // 로딩 완료 추적
   var loaded = { pixel: false, page: false };
 
   window.addEventListener('load', function() {
@@ -195,7 +201,6 @@ fbq('track', 'Lead');
     }
   }, 100);
 
-  // 2초 안에 픽셀 안 잡히면 강제 진행
   setTimeout(function() {
     if (!loaded.pixel) {
       loaded.pixel = true;
@@ -204,7 +209,6 @@ fbq('track', 'Lead');
     }
   }, 2000);
 
-  // 최소 2초 보장 후 리다이렉트
   var redirected = false;
   function tryRedirect() {
     if (!loaded.page || !loaded.pixel || redirected) return;
@@ -219,7 +223,6 @@ fbq('track', 'Lead');
     }, remaining);
   }
 
-  // 최종 안전장치: 5초 후 무조건 리다이렉트
   setTimeout(function() {
     if (!redirected) {
       redirected = true;
