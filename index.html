@@ -124,17 +124,17 @@ fbq('track', 'Lead');
 
 <script>
   var KAKAO_URL = 'https://open.kakao.com/me/gocho3';
+  var MIN_DISPLAY = 2000; // 최소 2초 표시
+  var pageStart = Date.now();
   var bar = document.getElementById('bar');
   var ppl = document.getElementById('ppl');
   var cnt = document.getElementById('cnt');
 
-  // 로딩 추적
-  var loaded = { pixel: false, page: false };
+  // 프로그레스바: 부드럽게 연속 진행
   var barTarget = 0;
   var barCurrent = 0;
   var barRAF = null;
 
-  // 프로그레스바: 부드럽게 연속 진행 (끊김 없음)
   function smoothBar() {
     var diff = barTarget - barCurrent;
     if (Math.abs(diff) < 0.15) {
@@ -143,7 +143,7 @@ fbq('track', 'Lead');
       if (barTarget < 100) barRAF = requestAnimationFrame(smoothBar);
       return;
     }
-    barCurrent += diff * 0.035;
+    barCurrent += diff * 0.025;
     bar.style.width = barCurrent + '%';
     barRAF = requestAnimationFrame(smoothBar);
   }
@@ -167,65 +167,66 @@ fbq('track', 'Lead');
     }, 300);
   }
 
-  // 1초 후 숫자 색상 플래시 변경
+  // 1초 후 숫자 플래시
   setTimeout(function() {
     flashChange(ppl, '8명');
     flashChange(cnt, '279건');
   }, 1000);
 
-  // 부드러운 연속 프로그레스
-  // 0.5초 후 시작 → 30%
-  setTimeout(function() { setBarTarget(30); }, 500);
+  // 프로그레스: 2초에 걸쳐 부드럽게
+  setTimeout(function() { setBarTarget(20); }, 300);
+  setTimeout(function() { setBarTarget(45); }, 800);
+  setTimeout(function() { setBarTarget(70); }, 1300);
+  setTimeout(function() { setBarTarget(90); }, 1800);
 
-  // 페이지 로드 완료 → 60%
+  // 로딩 완료 추적
+  var loaded = { pixel: false, page: false };
+
   window.addEventListener('load', function() {
     loaded.page = true;
-    setBarTarget(60);
-    checkDone();
+    tryRedirect();
   });
 
-  // 픽셀 로드 감지 → 90%
   var pixelCheck = setInterval(function() {
     if (typeof fbq !== 'undefined' && fbq.loaded) {
       loaded.pixel = true;
       clearInterval(pixelCheck);
-      setBarTarget(90);
-      checkDone();
+      tryRedirect();
     }
   }, 100);
 
-  // 2.5초 안에 픽셀 안 잡히면 강제 진행
+  // 2초 안에 픽셀 안 잡히면 강제 진행
   setTimeout(function() {
     if (!loaded.pixel) {
       loaded.pixel = true;
       clearInterval(pixelCheck);
-      setBarTarget(90);
-      checkDone();
+      tryRedirect();
     }
-  }, 2500);
+  }, 2000);
 
-  // 전부 로드되면 100% → 리다이렉트
+  // 최소 2초 보장 후 리다이렉트
   var redirected = false;
-  function checkDone() {
-    if (loaded.page && loaded.pixel && !redirected) {
-      redirected = true;
+  function tryRedirect() {
+    if (!loaded.page || !loaded.pixel || redirected) return;
+    redirected = true;
+    var elapsed = Date.now() - pageStart;
+    var remaining = Math.max(0, MIN_DISPLAY - elapsed);
+    setTimeout(function() {
+      setBarTarget(100);
       setTimeout(function() {
-        setBarTarget(100);
-        setTimeout(function() {
-          window.location.href = KAKAO_URL;
-        }, 600);
-      }, 200);
-    }
+        window.location.href = KAKAO_URL;
+      }, 500);
+    }, remaining);
   }
 
-  // 최종 안전장치: 4초 후 무조건 리다이렉트
+  // 최종 안전장치: 5초 후 무조건 리다이렉트
   setTimeout(function() {
     if (!redirected) {
       redirected = true;
       bar.style.width = '100%';
       window.location.href = KAKAO_URL;
     }
-  }, 4000);
+  }, 5000);
 </script>
 
 </body>
